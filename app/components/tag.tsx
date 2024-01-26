@@ -1,20 +1,14 @@
 import "tailwindcss/tailwind.css"
-import { useState ,useEffect} from 'react';
-
-export const Tags = ()=>{
-    const [tag,setTag] = useState("");
-    const handleButtonClick =  (e:any) => {
-        setTag(e.target.textContent);
-    }; 
-    useEffect(()=>{console.log(tag)},[tag])
+import Link from "next/link";
+import { tags } from "../data/tags";
+export const TagList = ()=>{
+     
     return(
         <div className="flex flex-col ">
-            <button onClick={handleButtonClick} className="bg-blue-300 text-white cursor-pointer hover:bg-blue-500 my-1">html</button>
-            <button onClick={handleButtonClick} className="bg-blue-300 text-white cursor-pointer hover:bg-blue-500 my-1">css</button>
-            <button onClick={handleButtonClick} className="bg-blue-300 text-white cursor-pointer hover:bg-blue-500 my-1">js</button>
-            <button onClick={handleButtonClick} className="bg-blue-300 text-white cursor-pointer hover:bg-blue-500 my-1">ts</button>
-            <button onClick={handleButtonClick} className="bg-blue-300 text-white cursor-pointer hover:bg-blue-500 my-1">java</button>
-
+            <Link href={{pathname:'/',query:{tag:``}}} className="bg-blue-300 hover:bg-blue-500 my-1">すべて</Link>
+            {tags.map((tag,index)=>(
+                <Link href={{pathname:'/',query:{tag:`${tag}`}}} key={index} className="bg-blue-300 hover:bg-blue-500 my-1">{tag}</Link>
+            ))}
         </div>
     );
 }

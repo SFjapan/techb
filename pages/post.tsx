@@ -1,0 +1,67 @@
+import "tailwindcss/tailwind.css"
+import { addDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { blogCollection ,firebaseApp} from "@/lib/firebase/config";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { getUserName } from "@/app/data/userData";
+import { tags } from "@/app/data/tags";
+export default function Post(){
+    //データ
+    const [title,setTitle] = useState('');
+    const [tag,setTag] = useState('');
+    const [body,setBody] = useState('');
+    const router = useRouter();
+
+    const [loadedData,setLoaded] = useState(false);
+    const auth = getAuth(firebaseApp);
+
+    const postBlog = async()=>{
+        try{
+            if(!loadedData){alert("入力してください");return;}
+            const now = new Date();
+            const options: Intl.DateTimeFormatOptions = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const localeDateString = now.toLocaleDateString('ja-JP', options);
+            await addDoc(blogCollection, {
+                userName:await getUserName(auth.currentUser?.uid as string),
+                title:title,
+                tag:tag,
+                body:body,
+                date:localeDateString,
+                Uid:getAuth(firebaseApp).currentUser?.uid
+            });
+            alert('送信完了');
+            router.push("/");
+        } catch (error) {
+            alert('エラーです');
+        }
+    }
+    useEffect(()=>{
+        if(!(title == "" || tag == "" || body == "")){
+            setLoaded(true);
+        }
+    },[title,body,tag])
+    return(
+        <div className="flex flex-col justify-center items-center">
+            <input type="text" placeholder="title"  onChange={(e)=>setTitle(e.target.value)} className="border-2 border-solid border-gray-200"/>
+            <select name="tag" id="tag"  onChange={(e)=>setTag(e.target.value)} className="border-2 border-solid border-black rounded-sm">
+                <option value="">言語やフレームワークの選択</option>
+                {
+                    tags.map((item,index)=>(
+                        <option value={item} key={index} className="text-center">{item}</option>
+                    ))
+                }
+            </select>
+            <textarea rows={10} cols={100} placeholder="body"  onChange={(e)=>setBody(e.target.value)} className="border-2 border-solid border-gray-200"/>
+            <button className="" onClick={()=>postBlog()}>投稿</button>
+        </div>
+    );
+}
+
