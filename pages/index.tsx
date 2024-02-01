@@ -8,6 +8,7 @@ import { firebaseApp } from "@/lib/firebase/config";
 import { TagList} from "@/app/components/tag";
 import { BlogList } from "@/app/components/blog";
 import { getUid, getUserName } from "@/app/data/userData";
+import firebase from "firebase/compat/app";
 export default function Index(){
     //ユーザーのemail,password
     const router = useRouter();
@@ -44,7 +45,13 @@ export default function Index(){
     const doLogin = async () => {
         const auth = getAuth(firebaseApp);
         const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
+        try{
+            await signInWithPopup(auth, provider);
+
+        }catch(error){
+            console.log(error);
+        }   
+
         setLogin(true);
     };
     const doLogout = async () => {
@@ -57,7 +64,7 @@ export default function Index(){
         <div className="flex flex-col bg-gray-300">
             <div className="flex justify-end items-center bg-blue-500 text-white rounded-md h-[50px]">
                 <div className="login px-3 hover:bg-blue-600 cursor-pointer font-bold">{logined?<button onClick={()=>doLogout()} >ログアウト</button>:<button onClick={()=>doLogin()}>ログイン</button>}</div>
-                <div className="user px-3 hover:bg-blue-600 cursor-pointer font-bold">{logined?<button onClick={()=>router.push("/user")}>{userName}</button>:"ログインしてください"}</div>
+                <div className="user px-3 hover:bg-blue-600 cursor-pointer font-bold">{logined?userName?<button onClick={()=>router.push("/user")}>{userName}</button>:<button onClick={()=>router.push("/user")}>プロフィール設定</button>:"ログインしてください"}</div>
                 {logined?<div className="user px-3 hover:bg-blue-600 cursor-pointer font-bold">{logined?<button onClick={()=>router.push("/post")}>投稿</button>:"ログインしてください"}</div>:<></>}
                 <div className="inform px-3 hover:bg-blue-600 cursor-pointer ">{logined?<button>通知</button>:"通知なし"}</div>
             </div>     
