@@ -109,10 +109,9 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                let q = query(blogCollection, orderBy('date', 'desc'));
-                if (tag) {
-                    q = query(blogCollection, where("tag", "==", tag), orderBy('date', 'desc'));
-                }
+                const q = tag
+                    ? query(blogCollection, where("tag", "==", tag), orderBy('date', 'desc'))
+                    : query(blogCollection, orderBy('date', 'desc'));
                 let querySnapshot = await getDocs(q);
                 const postsData = querySnapshot.docs.map((doc) => ({ username: doc.data().userName, title: doc.data().title, tag: doc.data().tag, body: doc.data().body, date: doc.data().date, postId: doc.data().postId,like:doc.data().like, comments: doc.data().comments }));
                 setPosts(postsData);
@@ -124,21 +123,33 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
     }, [tag])
     //読み込み
     useEffect(() => {
-        try {
-            onSnapshot(blogCollection, async (snapshot) => {
-                let q = query(blogCollection, orderBy('date', 'desc'));
-                if (tag) {
-                    q = query(blogCollection, where("tag", "==", tag), orderBy('date', 'desc'));
-                }
-
+        const fetchData = async () => {
+            try {
+                const q = tag
+                    ? query(blogCollection, where("tag", "==", tag), orderBy('date', 'desc'))
+                    : query(blogCollection, orderBy('date', 'desc'));
+    
                 const querySnapshot = await getDocs(q);
-                const postsData = querySnapshot.docs.map((doc) => ({ username: doc.data().userName, title: doc.data().title, tag: doc.data().tag, body: doc.data().body, date: doc.data().date, postId: doc.data().postId,like:doc.data().like, comments: doc.data().comments }));
+                const postsData = querySnapshot.docs.map((doc) => ({
+                    username: doc.data().userName,
+                    title: doc.data().title,
+                    tag: doc.data().tag,
+                    body: doc.data().body,
+                    date: doc.data().date,
+                    postId: doc.data().postId,
+                    like: doc.data().like,
+                    comments: doc.data().comments
+                }));
+    
                 setPosts(postsData);
-            })
-        } catch (error) {
-            console.log(error);
-        }
-    }, [])
+            } catch (error) {
+                console.log(error);
+            }
+        };
+    
+        // fetchData関数を実行するときに、tagが変更された場合にのみ再実行されるように依存配列にtagを含める
+        fetchData();
+    }, [tag, setPosts]);
 
     //いいね
     const addLike = async(e:any) =>{

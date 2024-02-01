@@ -28,7 +28,7 @@ export default function Index(){
         });
         // Cleanup the subscription to avoid memory leaks
         return () => unsubscribe();
-    }, []);
+    }, [auth]);
 
     useEffect(()=>{
         if(Uid != undefined){
