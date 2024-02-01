@@ -2,15 +2,12 @@
 //メールアドレス自体はgmailを使ってユーザーの情報は個別に作成可能にする
 import "tailwindcss/tailwind.css"
 import { getAuth,GoogleAuthProvider,signInWithPopup} from "firebase/auth"
-import { getDocs } from "firebase/firestore";
 import { useState,useEffect } from 'react';
 import { useRouter } from "next/router";
-import { firebaseApp,userCollection } from "@/lib/firebase/config";
+import { firebaseApp } from "@/lib/firebase/config";
 import { TagList} from "@/app/components/tag";
 import { BlogList } from "@/app/components/blog";
-import { RecommendList } from "@/app/components/recommand";
 import { getUid, getUserName } from "@/app/data/userData";
-import Link from "next/link";
 export default function Index(){
     //ユーザーのemail,password
     const router = useRouter();
@@ -67,7 +64,7 @@ export default function Index(){
             <div className="main bg-white h-screen flex justify-center ">
                 <div className="tags w-1/4 mx-5 my-5 text-center border-solid border-2 border-gray-100 rounded-md"><TagList/></div>
                 <div className="blogs w-2/4 mx-5 my-5"><BlogList tag={tag as string} /></div>
-            </div>  
+            </div>   
         </div>
     );
 }

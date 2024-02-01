@@ -1,9 +1,8 @@
 import "tailwindcss/tailwind.css"
-import { addDoc, collection, doc, getDoc, getFirestore, setDoc, getDocs, query } from "firebase/firestore";
+import { addDoc, doc, getDoc, setDoc, getDocs, query } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { userCollection, firebaseApp, firestore,blogCollection } from "@/lib/firebase/config";
-import { use, useEffect, useState } from "react";
-import { format } from "util";
+import {  useState } from "react";
 import { useRouter } from "next/router";
 export default function User() {
     //ユーザー情報
@@ -93,7 +92,7 @@ export default function User() {
             const updatedoc = await getDoc(targetdoc);
             //コメントの有無
             if(updatedoc.data()?.comments){
-                let targetcomments:[{body:"",date:"",parentID:"",userName:""}] = [];
+                let targetcomments:{body:string,date:string,parentID:string,userName:string}[] = [];
                 Object.keys(updatedoc.data()?.comments).map((result,index)=>{
                     targetcomments.push(updatedoc.data()?.comments[result]);
                     targetcomments[index].userName = targetname;

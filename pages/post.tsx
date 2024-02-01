@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { getUserName } from "@/app/data/userData";
 import { tags } from "@/app/data/tags";
 import { List } from "reactstrap";
+import { getDate } from "@/app/data/date";
 export default function Post(){
     //データ
     const [title,setTitle] = useState('');
@@ -30,22 +31,13 @@ export default function Post(){
     const postBlog = async()=>{
         try{
             if(!loadedData){alert("入力してください");return;}
-            const now = new Date();
-            const options: Intl.DateTimeFormatOptions = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-            };
-            const localeDateString = now.toLocaleDateString('ja-JP', options);
+            
             await addDoc(blogCollection, {
                 userName:await getUserName(auth.currentUser?.uid as string),
                 title:title,
                 tag:tag,
                 body:body,
-                date:localeDateString,
+                date:getDate(),
                 Uid:getAuth(firebaseApp).currentUser?.uid,
                 postId:lastPostID,
                 like:0
