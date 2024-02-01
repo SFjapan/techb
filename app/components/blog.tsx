@@ -24,7 +24,6 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
     //モダルでコメント投信画面表示送信したら消える
     const getPost = async (e: any) => {
         const parentID = e.target.parentNode.parentNode.parentNode.parentNode.id;
-        console.log(parentID);
         setParentID(parentID);
         setModal(true);
     }
@@ -47,7 +46,6 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                 documentID = doc.id;
             }
         })
-        console.log(parentID);
         const postdoc = doc(firestore, 'blog', documentID);
         const targetDoc = await getDoc(postdoc);
         let commentId = 0;
@@ -56,8 +54,6 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
             //ある時は追記
             let targetComments = [{}];
             Object.keys(targetDoc.data()?.comments).map((result,index)=>{
-                console.log(result);
-                console.log(index);
                 targetComments[index] = targetDoc.data()?.comments[result];
             })
             targetComments[targetComments.length] = {
@@ -156,17 +152,13 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
         const parentID = e.target.parentNode.parentNode.parentNode.id;
         const blogs = await getDocs(blogCollection);
         let documentID: string = "";
-        console.log(parentID);
         blogs.forEach(element => {
-            console.log(element.data());
             if(element.data().postId === parentID){
                 documentID = element.id;
             }
         });
-        console.log(documentID);
         const postdoc = doc(firestore, 'blog', documentID);
         const targetDoc = await getDoc(postdoc);  
-        console.log(targetDoc.data());
         if(targetDoc.data()?.comments){
             setDoc(postdoc,{
                 userName: targetDoc.data()?.userName,
