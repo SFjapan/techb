@@ -18,9 +18,8 @@ const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 // Get authentication and firestore instances
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
-const blogCollection = collection(firestore,'blog')
-const userCollection = collection(firestore,'users')
-export { firebaseApp, auth, firestore,blogCollection,userCollection };
+
+export { firebaseApp, auth, firestore };
 
 
 

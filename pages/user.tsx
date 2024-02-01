@@ -1,7 +1,7 @@
 import "tailwindcss/tailwind.css"
-import { addDoc, doc, getDoc, setDoc, getDocs, query } from "firebase/firestore";
+import { addDoc, doc, getDoc, setDoc, getDocs, collection } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { userCollection, firebaseApp, firestore,blogCollection } from "@/lib/firebase/config";
+import { firebaseApp, firestore } from "@/lib/firebase/config";
 import {  useState } from "react";
 import { useRouter } from "next/router";
 export default function User() {
@@ -22,7 +22,7 @@ export default function User() {
             }
             if (!Uid) return;
             //usersコレクションすべて取得
-            const querySnapshot = await getDocs(userCollection);
+            const querySnapshot = await getDocs(collection(firestore,'users'));
             //documentID判別
             let documentID: string = "";
             let prevName : string ="";
@@ -52,7 +52,7 @@ export default function User() {
                     
                 }
             } else {
-                await addDoc(userCollection, {
+                await addDoc(collection(firestore,'users'), {
                     userName: username,
                     age: age,
                     hideage: hideage,
@@ -69,7 +69,7 @@ export default function User() {
     }
 
     const updateUserNames = async(prevname:string,targetname:string)=>{
-        const posts = await getDocs(blogCollection);
+        const posts = await getDocs(collection(firestore,'blog'));
         let postdocs:string[] =[];
         let commentids:string[][] = [];
         posts.docs.map((e,index)=>{

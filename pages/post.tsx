@@ -1,7 +1,7 @@
 import "tailwindcss/tailwind.css"
-import { addDoc,getDocs } from "firebase/firestore";
+import { addDoc,collection,getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { blogCollection ,firebaseApp} from "@/lib/firebase/config";
+import { firebaseApp, firestore} from "@/lib/firebase/config";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getUserName } from "@/app/data/userData";
@@ -19,7 +19,7 @@ export default function Post(){
     const [lastPostID,setLastPostID] = useState("")
     let size:Array<string> = new Array();
     const getSize = async () =>{
-        await getDocs(blogCollection).then((e)=>{
+        await getDocs(collection(firestore,'blog')).then((e)=>{
             e.docs.map((e)=>{
                 size.push(e.data().postId);
             })
@@ -32,7 +32,7 @@ export default function Post(){
         try{
             if(!loadedData){alert("入力してください");return;}
             
-            await addDoc(blogCollection, {
+            await addDoc(collection(firestore,'blog'), {
                 userName:await getUserName(auth.currentUser?.uid as string),
                 title:title,
                 tag:tag,

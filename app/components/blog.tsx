@@ -1,7 +1,7 @@
 import "tailwindcss/tailwind.css"
-import { getDoc, getDocs, doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { getDoc, getDocs, doc, onSnapshot, orderBy, query, where,collection } from "firebase/firestore";
 import { setDoc } from "firebase/firestore";
-import { blogCollection, firebaseApp, firestore } from "@/lib/firebase/config";
+import { firebaseApp, firestore } from "@/lib/firebase/config";
 import { useState, useEffect } from "react";
 import { getDate } from "../data/date";
 import { getUserName } from "../data/userData";
@@ -37,7 +37,7 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
             return;
         }
         //blogコレクションすべて取得
-        const querySnapshot = await getDocs(blogCollection);
+        const querySnapshot = await getDocs(collection(firestore,'blog'));
         //documentID判別
         let documentID: string = "";
         querySnapshot.forEach((doc) => {
@@ -106,8 +106,8 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
         const fetchPosts = async () => {
             try {
                 const q = tag
-                    ? query(blogCollection, where("tag", "==", tag), orderBy('date', 'desc'))
-                    : query(blogCollection, orderBy('date', 'desc'));
+                    ? query(collection(firestore,'blog'), where("tag", "==", tag), orderBy('date', 'desc'))
+                    : query(collection(firestore,'blog'), orderBy('date', 'desc'));
                 let querySnapshot = await getDocs(q);
                 const postsData = querySnapshot.docs.map((doc) => ({ username: doc.data().userName, title: doc.data().title, tag: doc.data().tag, body: doc.data().body, date: doc.data().date, postId: doc.data().postId,like:doc.data().like, comments: doc.data().comments }));
                 setPosts(postsData);
@@ -122,8 +122,8 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
         const fetchData = async () => {
             try {
                 const q = tag
-                    ? query(blogCollection, where("tag", "==", tag), orderBy('date', 'desc'))
-                    : query(blogCollection, orderBy('date', 'desc'));
+                    ? query(collection(firestore,'blog'), where("tag", "==", tag), orderBy('date', 'desc'))
+                    : query(collection(firestore,'blog'), orderBy('date', 'desc'));
     
                 const querySnapshot = await getDocs(q);
                 const postsData = querySnapshot.docs.map((doc) => ({
@@ -150,7 +150,7 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
     //いいね
     const addLike = async(e:any) =>{
         const parentID = e.target.parentNode.parentNode.parentNode.id;
-        const blogs = await getDocs(blogCollection);
+        const blogs = await getDocs(collection(firestore,'blog'));
         let documentID: string = "";
         blogs.forEach(element => {
             if(element.data().postId === parentID){
