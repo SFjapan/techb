@@ -197,14 +197,14 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                 <button onClick={() => addComment()}>投稿</button>
             </div>
             {
-                posts.map((post) => (
-                    <div id={String(post.postId)} className="parent my-4 flex flex-col ">
+                posts.map((post,index) => (
+                    <div id={String(post.postId)} key={index}className="parent my-4 flex flex-col ">
                         <div className="content border-2 border-gray-200 border-sloid">
                             <h1 className="text-2xl ">{post.username}</h1>
                             <Link href={{ pathname: '/', query: { tag: `${post.tag}` } }} className="text-blue-300">#{post.tag}</Link>
                             <h2 id="title">タイトル:{post.title}</h2>
-                            {post.body.split("\n").map((e) => (
-                                <p>{e}</p>
+                            {post.body.split("\n").map((e,index) => (
+                                <p key={index}>{e}</p>
                             ))}
 
                             <p className="text-right">{post.date}</p>
