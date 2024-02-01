@@ -10,6 +10,7 @@ import { TagList} from "@/app/components/tag";
 import { BlogList } from "@/app/components/blog";
 import { RecommendList } from "@/app/components/recommand";
 import { getUid, getUserName } from "@/app/data/userData";
+import Link from "next/link";
 export default function Index(){
     //ユーザーのemail,password
     const router = useRouter();
@@ -18,14 +19,12 @@ export default function Index(){
     const auth = getAuth(firebaseApp);
     const [Uid,setUid] = useState<string | undefined>(undefined)
     let {tag} = router.query;
-    useEffect(() => {
-        
+    useEffect(() => {  
         //毎回ログインしなくていいように
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
                 setLogin(true);
-                setUid(getUid());
-                               
+                setUid(getUid());                           
             } else {
                 setLogin(false);
             }
@@ -64,12 +63,10 @@ export default function Index(){
                 <div className="user px-3 hover:bg-blue-600 cursor-pointer font-bold">{logined?<button onClick={()=>router.push("/user")}>{userName}</button>:"ログインしてください"}</div>
                 {logined?<div className="user px-3 hover:bg-blue-600 cursor-pointer font-bold">{logined?<button onClick={()=>router.push("/post")}>投稿</button>:"ログインしてください"}</div>:<></>}
                 <div className="inform px-3 hover:bg-blue-600 cursor-pointer ">{logined?<button>通知</button>:"通知なし"}</div>
-
             </div>     
             <div className="main bg-white h-screen flex justify-center ">
                 <div className="tags w-1/4 mx-5 my-5 text-center border-solid border-2 border-gray-100 rounded-md"><TagList/></div>
-                <div className="blogs w-2/4 mx-5 my-5 text-center"><BlogList tag={tag as string}/></div>
-                <div className="recommendAccounts w-1/4 mx-5 my-5 text-center"><RecommendList/></div>
+                <div className="blogs w-2/4 mx-5 my-5"><BlogList tag={tag as string} /></div>
             </div>  
         </div>
     );

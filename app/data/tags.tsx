@@ -3,6 +3,10 @@ export const tags = [
     "js",
     "ts",
     "php",
+    "c",
+    "c++",
+    "c#",
+    "kotlin",
     "html",
     "css",
     "react",
@@ -10,4 +14,8 @@ export const tags = [
     "laravel",
     "spring",
     "swift",
+    "android studio",
+    "flutter",
+    "unity",
+    "ue5"
 ];

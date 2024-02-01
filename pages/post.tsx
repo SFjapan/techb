@@ -1,21 +1,32 @@
 import "tailwindcss/tailwind.css"
-import { addDoc } from "firebase/firestore";
+import { addDoc,getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { blogCollection ,firebaseApp} from "@/lib/firebase/config";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getUserName } from "@/app/data/userData";
 import { tags } from "@/app/data/tags";
+import { List } from "reactstrap";
 export default function Post(){
     //データ
     const [title,setTitle] = useState('');
     const [tag,setTag] = useState('');
     const [body,setBody] = useState('');
     const router = useRouter();
-
     const [loadedData,setLoaded] = useState(false);
     const auth = getAuth(firebaseApp);
-
+    const [lastPostID,setLastPostID] = useState("")
+    let size:Array<string> = new Array();
+    const getSize = async () =>{
+        await getDocs(blogCollection).then((e)=>{
+            e.docs.map((e)=>{
+                size.push(e.data().postId);
+            })
+        });
+        if(size.length <= 0)setLastPostID("1");
+        else setLastPostID(String(Number(size[size.length-1]) + 1));
+    }
+    getSize();
     const postBlog = async()=>{
         try{
             if(!loadedData){alert("入力してください");return;}
@@ -26,7 +37,7 @@ export default function Post(){
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-                second: '2-digit'
+                second: '2-digit',
             };
             const localeDateString = now.toLocaleDateString('ja-JP', options);
             await addDoc(blogCollection, {
@@ -35,12 +46,15 @@ export default function Post(){
                 tag:tag,
                 body:body,
                 date:localeDateString,
-                Uid:getAuth(firebaseApp).currentUser?.uid
+                Uid:getAuth(firebaseApp).currentUser?.uid,
+                postId:lastPostID,
+                like:0
+
             });
-            alert('送信完了');
+            alert('送信完了' + lastPostID);
             router.push("/");
         } catch (error) {
-            alert('エラーです');
+            alert('エラーです' + error);
         }
     }
     useEffect(()=>{

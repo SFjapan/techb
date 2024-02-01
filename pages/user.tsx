@@ -1,7 +1,7 @@
 import "tailwindcss/tailwind.css"
-import { addDoc, collection, doc, getDoc, getFirestore, setDoc, getDocs } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getFirestore, setDoc, getDocs, query } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { userCollection, firebaseApp, firestore } from "@/lib/firebase/config";
+import { userCollection, firebaseApp, firestore,blogCollection } from "@/lib/firebase/config";
 import { use, useEffect, useState } from "react";
 import { format } from "util";
 import { useRouter } from "next/router";
@@ -26,42 +26,100 @@ export default function User() {
             const querySnapshot = await getDocs(userCollection);
             //documentID判別
             let documentID: string = "";
+            let prevName : string ="";
             querySnapshot.forEach((doc) => {
                 //Uidが同じならdocumentID更新
                 if (doc.data().Uid == Uid) {
                     documentID = doc.id;
+                    prevName = doc.data().userName;
                 }
             })
             //更新か登録
             if (documentID) {
                 const postdoc = doc(firestore, 'users', documentID);
                 const UserDoc = await getDoc(postdoc);
+                //更新したらブログやコメントのuserNameも更新できるように
+                updateUserNames(prevName,username);
                 //登録済みなら更新
                 if (UserDoc.exists()) {
                     await setDoc(postdoc, {
-                        name: username,
+                        userName: username,
                         age: age,
                         hideage: hideage,
                         sex: sex,
                         Uid: Uid
                     })
-                    alert("更新しました!!")
+                    alert("更新しました!!");
+                    
                 }
             } else {
                 await addDoc(userCollection, {
-                    name: username,
+                    userName: username,
                     age: age,
                     hideage: hideage,
                     sex: sex,
                     Uid: Uid
                 })
-                alert("登録しました!!")
+                alert("登録しました!!");
             }
             router.push("/")
 
         } catch (error) {
             alert('エラーです' + error)
         }
+    }
+
+    const updateUserNames = async(prevname:string,targetname:string)=>{
+        const posts = await getDocs(blogCollection);
+        let postdocs:string[] =[];
+        let commentids:string[][] = [];
+        posts.docs.map((e,index)=>{
+            if(e.data().userName == prevname){
+                postdocs.push(e.id);
+            }
+            if(e.data().comments){
+                let ids:string[]=[];
+                Object.keys(e.data().comments).map((result)=>{
+                    if(e.data().comments[result].userName == prevname){
+                        ids.push(result);
+                    }
+                })
+                commentids[index] = ids;
+
+            }
+        })
+        postdocs.forEach(async(element,index) => {
+            const targetdoc =doc(firestore,'posts',element)
+            const updatedoc = await getDoc(targetdoc);
+            //コメントの有無
+            if(updatedoc.data()?.comments){
+                let targetcomments:[{body:"",date:"",parentID:"",userName:""}] = [];
+                Object.keys(updatedoc.data()?.comments).map((result,index)=>{
+                    targetcomments.push(updatedoc.data()?.comments[result]);
+                    targetcomments[index].userName = targetname;
+                })
+                setDoc(targetdoc,{
+                    Uid:updatedoc.data()?.Uid,
+                    body:updatedoc.data()?.body,
+                    date:updatedoc.data()?.date,
+                    postId:updatedoc.data()?.postId,
+                    tag:updatedoc.data()?.tag,
+                    title:updatedoc.data()?.title,
+                    userName:targetname,
+                    comments:targetcomments
+                });
+            }else{
+                setDoc(targetdoc,{
+                    Uid:updatedoc.data()?.Uid,
+                    body:updatedoc.data()?.body,
+                    date:updatedoc.data()?.date,
+                    postId:updatedoc.data()?.postId,
+                    tag:updatedoc.data()?.tag,
+                    title:updatedoc.data()?.title,
+                    userName:targetname,
+                });
+            }
+        });
     }
 
 
