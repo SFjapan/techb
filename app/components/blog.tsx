@@ -1,5 +1,5 @@
 import "tailwindcss/tailwind.css"
-import { getDoc, getDocs, doc, onSnapshot, orderBy, query, where,collection } from "firebase/firestore";
+import { getDoc, getDocs, doc, onSnapshot, orderBy, query, where, collection } from "firebase/firestore";
 import { setDoc } from "firebase/firestore";
 import { firebaseApp, firestore } from "@/lib/firebase/config";
 import { useState, useEffect } from "react";
@@ -16,7 +16,7 @@ import cross_img from "@/imgs/cross-svgrepo-com.png"
 import heart_img from "@/imgs/heart-svgrepo-com (1).png"
 
 export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
-    const [posts, setPosts] = useState([{ username: '', title: '', tag: '', body: '', date: '', postId: 0,like:0, comments: [{ body: "", date: "", parentId: "", userName: "" }] }]);
+    const [posts, setPosts] = useState([{ username: '', title: '', tag: '', body: '', date: '', postId: 0, like: 0, comments: [{ body: "", date: "", parentId: "", userName: "" }] }]);
     // const [comments, setComments] = useState([{ username: '', body: '', date: '',targetId:0 }]);
     const [modal, setModal] = useState(false);
     const [comment, setComment] = useState("");
@@ -27,7 +27,7 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
         setParentID(parentID);
         setModal(true);
     }
- 
+
     //コメント送信
     const addComment = async () => {
         const userName = await getUserName(auth.currentUser?.uid as string);
@@ -37,7 +37,7 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
             return;
         }
         //blogコレクションすべて取得
-        const querySnapshot = await getDocs(collection(firestore,'blog'));
+        const querySnapshot = await getDocs(collection(firestore, 'blog'));
         //documentID判別
         let documentID: string = "";
         querySnapshot.forEach((doc) => {
@@ -53,7 +53,7 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
         if (targetDoc.data()?.comments) {
             //ある時は追記
             let targetComments = [{}];
-            Object.keys(targetDoc.data()?.comments).map((result,index)=>{
+            Object.keys(targetDoc.data()?.comments).map((result, index) => {
                 targetComments[index] = targetDoc.data()?.comments[result];
             })
             targetComments[targetComments.length] = {
@@ -72,10 +72,10 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                 Uid: targetDoc.data()?.Uid,
                 postId: targetDoc.data()?.postId,
                 comments: targetComments,
-                like:targetDoc.data()?.like
+                like: targetDoc.data()?.like
             });
-            
-            
+
+
         } else {
             //ないときは作る
             await setDoc(postdoc, {
@@ -106,10 +106,10 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
         const fetchPosts = async () => {
             try {
                 const q = tag
-                    ? query(collection(firestore,'blog'), where("tag", "==", tag), orderBy('date', 'desc'))
-                    : query(collection(firestore,'blog'), orderBy('date', 'desc'));
+                    ? query(collection(firestore, 'blog'), where("tag", "==", tag), orderBy('date', 'desc'))
+                    : query(collection(firestore, 'blog'), orderBy('date', 'desc'));
                 let querySnapshot = await getDocs(q);
-                const postsData = querySnapshot.docs.map((doc) => ({ username: doc.data().userName, title: doc.data().title, tag: doc.data().tag, body: doc.data().body, date: doc.data().date, postId: doc.data().postId,like:doc.data().like, comments: doc.data().comments }));
+                const postsData = querySnapshot.docs.map((doc) => ({ username: doc.data().userName, title: doc.data().title, tag: doc.data().tag, body: doc.data().body, date: doc.data().date, postId: doc.data().postId, like: doc.data().like, comments: doc.data().comments }));
                 setPosts(postsData);
             } catch (error) {
                 console.error("Error fetching posts: ", error);
@@ -119,48 +119,63 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
     }, [tag])
     //読み込み
     useEffect(() => {
-        const fetchData = async () => {
-            try {
+        try {
+            onSnapshot(collection(firestore, 'blog'), async (snapshot) => {
                 const q = tag
-                    ? query(collection(firestore,'blog'), where("tag", "==", tag), orderBy('date', 'desc'))
-                    : query(collection(firestore,'blog'), orderBy('date', 'desc'));
-    
+                    ? query(collection(firestore, 'blog'), where("tag", "==", tag), orderBy('date', 'desc'))
+                    : query(collection(firestore, 'blog'), orderBy('date', 'desc'));
+
                 const querySnapshot = await getDocs(q);
-                const postsData = querySnapshot.docs.map((doc) => ({
-                    username: doc.data().userName,
-                    title: doc.data().title,
-                    tag: doc.data().tag,
-                    body: doc.data().body,
-                    date: doc.data().date,
-                    postId: doc.data().postId,
-                    like: doc.data().like,
-                    comments: doc.data().comments
-                }));
-    
+                const postsData = querySnapshot.docs.map((doc) => {
+                    if(doc.data()?.comments){
+                        return({
+                            username: doc.data()?.userName,
+                            title: doc.data()?.title,
+                            tag: doc.data()?.tag,
+                            body: doc.data()?.body,
+                            date: doc.data()?.date,
+                            postId: doc.data()?.postId,
+                            like: doc.data()?.like,
+                            comments: doc.data()?.comments
+                        });
+                    }else{
+                        return({
+                            username: doc.data()?.userName,
+                            title: doc.data()?.title,
+                            tag: doc.data()?.tag,
+                            body: doc.data()?.body,
+                            date: doc.data()?.date,
+                            postId: doc.data()?.postId,
+                            like: doc.data()?.like,
+                            comments:"",
+                        });
+                    }
+                    
+                });
+
                 setPosts(postsData);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-    
-        // fetchData関数を実行するときに、tagが変更された場合にのみ再実行されるように依存配列にtagを含める
-        fetchData();
-    }, [tag, setPosts]);
+            })
+
+        } catch (error) {
+            console.log(error);
+        }
+    }, []);
 
     //いいね
-    const addLike = async(e:any) =>{
+    const addLike = async (e: any) => {
         const parentID = e.target.parentNode.parentNode.parentNode.id;
-        const blogs = await getDocs(collection(firestore,'blog'));
+        const blogs = await getDocs(collection(firestore, 'blog'));
         let documentID: string = "";
         blogs.forEach(element => {
-            if(element.data().postId === parentID){
+            if (element.data().postId === parentID) {
                 documentID = element.id;
             }
         });
         const postdoc = doc(firestore, 'blog', documentID);
-        const targetDoc = await getDoc(postdoc);  
-        if(targetDoc.data()?.comments){
-            setDoc(postdoc,{
+        const targetDoc = await getDoc(postdoc);
+        console.log(parentID);
+        if (targetDoc.data()?.comments) {
+            setDoc(postdoc, {
                 userName: targetDoc.data()?.userName,
                 title: targetDoc.data()?.title,
                 tag: targetDoc.data()?.tag,
@@ -169,10 +184,10 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                 Uid: targetDoc.data()?.Uid,
                 postId: targetDoc.data()?.postId,
                 comments: targetDoc.data()?.comments,
-                like:targetDoc.data()?.like + 1
+                like: targetDoc.data()?.like + 1
             })
-        }else{
-            setDoc(postdoc,{
+        } else {
+            setDoc(postdoc, {
                 userName: targetDoc.data()?.userName,
                 title: targetDoc.data()?.title,
                 tag: targetDoc.data()?.tag,
@@ -180,10 +195,10 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                 date: targetDoc.data()?.date,
                 Uid: targetDoc.data()?.Uid,
                 postId: targetDoc.data()?.postId,
-                like:targetDoc.data()?.like + 1
+                like: targetDoc.data()?.like + 1
             })
-        }      
-       
+        }
+
     }
 
 
@@ -200,20 +215,20 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                 <button onClick={() => addComment()}>投稿</button>
             </div>
             {
-                posts.map((post,index) => (
-                    <div id={String(post.postId)} key={index}className="parent my-4 flex flex-col ">
+                posts.map((post, index) => (
+                    <div id={String(post.postId)} key={index} className="parent my-4 flex flex-col ">
                         <div className="content border-2 border-gray-200 border-sloid">
                             <h1 className="text-2xl ">{post.username}</h1>
                             <Link href={{ pathname: '/', query: { tag: `${post.tag}` } }} className="text-blue-300">#{post.tag}</Link>
                             <h2 id="title">タイトル:{post.title}</h2>
-                            {post.body.split("\n").map((e,index) => (
+                            {post.body.split("\n").map((e, index) => (
                                 <p key={index}>{e}</p>
                             ))}
 
                             <p className="text-right">{post.date}</p>
                             <div className="flex justify-end items-center">
                                 <button className=" border-2 border-solid border-gray-200 rounded-md w-5 h-5 text-center" onClick={(e) => getPost(e)}><Image src={comment_img} alt="comment" width={32} height={32} /></button>
-                                <button className=" hover:text-red-500 hover:font-black flex items-center" onClick={(e)=>addLike(e)}><Image src={heart_img} alt="heart" width={32} height={32} />{post.like}</button>
+                                <button className=" hover:text-red-500 hover:font-black flex items-center" onClick={(e) => addLike(e)}><Image src={heart_img} alt="heart" width={32} height={32} />{post.like}</button>
                             </div>
                         </div>
 

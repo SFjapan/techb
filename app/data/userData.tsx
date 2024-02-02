@@ -8,7 +8,6 @@ export const getUserName = async (Uid:string): Promise<string | null>=>{
    let userName : string | null = null;
    users.forEach((e)=>{
     if(e.data().Uid == Uid){
-        console.log(e.data())
         userName =  e.data().userName as string;
     }
    });

@@ -8,7 +8,6 @@ import { firebaseApp } from "@/lib/firebase/config";
 import { TagList} from "@/app/components/tag";
 import { BlogList } from "@/app/components/blog";
 import { getUid, getUserName } from "@/app/data/userData";
-import firebase from "firebase/compat/app";
 export default function Index(){
     //ユーザーのemail,password
     const router = useRouter();

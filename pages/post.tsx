@@ -25,7 +25,7 @@ export default function Post(){
             })
         });
         if(size.length <= 0)setLastPostID("1");
-        else setLastPostID(String(Number(size[size.length-1]) + 1));
+        else setLastPostID(String(Number(size.length) + 1));
     }
     getSize();
     const postBlog = async()=>{
