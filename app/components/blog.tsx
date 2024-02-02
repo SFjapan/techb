@@ -86,6 +86,7 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                 date: targetDoc.data()?.date,
                 Uid: targetDoc.data()?.Uid,
                 postId: targetDoc.data()?.postId,
+                like:targetDoc.data()?.like,
                 comments: {
                     1: {
                         userName: await getUserName(auth.currentUser?.uid as string),
