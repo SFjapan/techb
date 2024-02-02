@@ -87,8 +87,9 @@ export default function User() {
 
             }
         })
+        console.log(postdocs);
         postdocs.forEach(async(element,index) => {
-            const targetdoc =doc(firestore,'posts',element)
+            const targetdoc =doc(firestore,'blog',element)
             const updatedoc = await getDoc(targetdoc);
             //コメントの有無
             if(updatedoc.data()?.comments){
@@ -105,6 +106,7 @@ export default function User() {
                     tag:updatedoc.data()?.tag,
                     title:updatedoc.data()?.title,
                     userName:targetname,
+                    like:updatedoc.data()?.like,
                     comments:targetcomments
                 });
             }else{
@@ -116,6 +118,7 @@ export default function User() {
                     tag:updatedoc.data()?.tag,
                     title:updatedoc.data()?.title,
                     userName:targetname,
+                    like:updatedoc.data()?.like,
                 });
             }
         });
