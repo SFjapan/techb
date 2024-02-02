@@ -16,14 +16,14 @@ import cross_img from "@/imgs/cross-svgrepo-com.png"
 import heart_img from "@/imgs/heart-svgrepo-com (1).png"
 
 export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
-    const [posts, setPosts] = useState([{ username: '', title: '', tag: '', body: '', date: '', postId: 0, like: 0, comments: [{ body: "", date: "", parentId: "", userName: "" }] }]);
+    const [posts, setPosts] = useState([{ username: '', title: '', tag: '', body: '', date: '', postId: 0, like: 0, comments: [{ body: "", date: "", parentId: "", userName: "" }]||null }]);
     // const [comments, setComments] = useState([{ username: '', body: '', date: '',targetId:0 }]);
     const [modal, setModal] = useState(false);
     const [comment, setComment] = useState("");
     const [parentID, setParentID] = useState("");
     //モダルでコメント投信画面表示送信したら消える
     const getPost = async (e: any) => {
-        const parentID = e.target.parentNode.parentNode.parentNode.parentNode.id;
+        const parentID = e.target.closest(".parent").id;
         setParentID(parentID);
         setModal(true);
     }
@@ -148,7 +148,7 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                             date: doc.data()?.date,
                             postId: doc.data()?.postId,
                             like: doc.data()?.like,
-                            comments:"",
+                            comments:null
                         });
                     }
                     
@@ -160,11 +160,11 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
         } catch (error) {
             console.log(error);
         }
-    }, []);
+    }, [tag]);
 
     //いいね
     const addLike = async (e: any) => {
-        const parentID = e.target.parentNode.parentNode.parentNode.id;
+        const parentID =e.target.closest(".parent").id;
         const blogs = await getDocs(collection(firestore, 'blog'));
         let documentID: string = "";
         blogs.forEach(element => {
