@@ -222,9 +222,9 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                             <h1 className="text-2xl ">{post.username}</h1>
                             <Link href={{ pathname: '/', query: { tag: `${post.tag}` } }} className="text-blue-300">#{post.tag}</Link>
                             <h2 id="title">タイトル:{post.title}</h2>
-                            {post.body.split("\n").map((e, index) => (
-                                <p key={index}>{e}</p>
-                            ))}
+                            <pre>
+                                {post.body}
+                            </pre>
 
                             <p className="text-right">{post.date}</p>
                             <div className="flex justify-end items-center">
@@ -237,7 +237,7 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                             {post.comments && Object.keys(post.comments).map((result: any) => (
                                 <div key={result} className="border-2 border-blue-200 rounded-md">
                                     <p>{post.comments[result].userName}</p>
-                                    <p>{post.comments[result].body}</p>
+                                    <pre>{post.comments[result].body}</pre>
                                     <p className="text-right">{post.comments[result].date}</p>
                                 </div>
                             ))}
