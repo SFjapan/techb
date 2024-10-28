@@ -15,8 +15,26 @@ import comment_img from "@/imgs/comments-svgrepo-com.png"
 import cross_img from "@/imgs/cross-svgrepo-com.png"
 import heart_img from "@/imgs/heart-svgrepo-com (1).png"
 
+interface Comment {
+    body: string;
+    date: string;
+    parentId: string;
+    userName: string;
+}
+
+interface Post {
+    username: string;
+    title: string;
+    tag: string;
+    body: string;
+    date: string;
+    postId: number;
+    like: number;
+    comments: Comment[]; // Comment型の配列
+}
+
 export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
-    const [posts, setPosts] = useState([{ username: '', title: '', tag: '', body: '', date: '', postId: 0, like: 0, comments: [{ body: "", date: "", parentId: "", userName: "" }]||null }]);
+    const [posts, setPosts] = useState<Post[]>([{ username: '', title: '', tag: '', body: '', date: '', postId: 0, like: 0, comments: [] }]);
     // const [comments, setComments] = useState([{ username: '', body: '', date: '',targetId:0 }]);
     const [modal, setModal] = useState(false);
     const [comment, setComment] = useState("");
@@ -223,7 +241,7 @@ export const BlogList: React.FC<BlogListProps> = ({ tag }) => {
                             <Link href={{ pathname: '/', query: { tag: `${post.tag}` } }} className="text-blue-300">#{post.tag}</Link>
                             <h2 id="title">タイトル:{post.title}</h2>
                             <pre>
-                                {post.body}
+                            <div dangerouslySetInnerHTML={{ __html: post.body }} />
                             </pre>
 
                             <p className="text-right">{post.date}</p>
